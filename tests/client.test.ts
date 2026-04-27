@@ -1,17 +1,50 @@
 import { describe, expect, it } from "vitest";
-import { ApiError } from "../src/utils/apiClient.js";
+import { buildArgs, CliError } from "../src/utils/cliClient.js";
 
-/**
- * TODO: rename ApiError import to match your renamed error class, then add
- * tests for any non-trivial client logic (e.g. param building, response parsing).
- */
+describe("CliError", () => {
+  it("creates error with code and message", () => {
+    const err = new CliError(1, "command not found");
+    expect(err.code).toBe(1);
+    expect(err.message).toBe("command not found");
+    expect(err.name).toBe("CliError");
+    expect(err).toBeInstanceOf(Error);
+  });
+});
 
-describe("ApiError", () => {
-  it("should create an error with status and message", () => {
-    const err = new ApiError(401, "Unauthorized", "Invalid API key");
-    expect(err.status).toBe(401);
-    expect(err.statusText).toBe("Unauthorized");
-    expect(err.message).toBe("Invalid API key");
-    expect(err.name).toBe("ApiError");
+describe("buildArgs", () => {
+  it("returns command as first arg", () => {
+    expect(buildArgs("read", {})[0]).toBe("read");
+  });
+
+  it("prepends vault arg when provided", () => {
+    const args = buildArgs("read", {}, "MyVault");
+    expect(args).toContain("vault=MyVault");
+    expect(args.indexOf("vault=MyVault")).toBe(1);
+  });
+
+  it("includes key=value pairs for string opts", () => {
+    const args = buildArgs("read", { file: "My Note", path: undefined });
+    expect(args).toContain("file=My Note");
+    expect(args).not.toContain("path=undefined");
+  });
+
+  it("includes flag-only arg for boolean true", () => {
+    const args = buildArgs("delete", { permanent: true });
+    expect(args).toContain("permanent");
+  });
+
+  it("omits arg for boolean false", () => {
+    const args = buildArgs("delete", { permanent: false });
+    expect(args).not.toContain("permanent");
+  });
+
+  it("omits arg for undefined values", () => {
+    const args = buildArgs("read", { file: undefined, path: undefined });
+    expect(args).toHaveLength(1);
+  });
+
+  it("includes numeric values as strings", () => {
+    const args = buildArgs("search", { limit: 10 });
+    expect(args).toContain("limit=10");
   });
 });

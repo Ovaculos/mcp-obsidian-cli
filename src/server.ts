@@ -5,9 +5,7 @@ import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import type { Request, Response } from "express";
 import { createServer } from "./app.js";
 import { SERVER_NAME } from "./constants.js";
-import { loadConfig } from "./utils/config.js";
 
-const config = loadConfig();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 const HOST = process.env.HOST ?? "127.0.0.1";
 
@@ -34,7 +32,7 @@ app.post("/mcp", async (req: Request, res: Response) => {
     transport.onclose = () => {
       if (transport.sessionId) transports.delete(transport.sessionId);
     };
-    const server = createServer(config.apiKey);
+    const server = createServer();
     await server.connect(transport);
     await transport.handleRequest(req, res, req.body);
     return;

@@ -1,27 +1,12 @@
-/**
- * Test fixtures — mock data that mirrors the shapes in src/types.ts.
- *
- * TODO: add a mock object for each resource type your API returns.
- * Example:
- *
- *   import type { MyResource } from "../src/types.js";
- *
- *   export const mockMyResource: MyResource = {
- *     id: "RESOURCE_123",
- *     name: "Test Resource",
- *     created_at: "2026-01-01T00:00:00Z",
- *   };
- *
- * If your API uses pagination, add a helper:
- *
- *   export function paginatedResponse<T>(items: T[]) {
- *     return {
- *       collection: items,
- *       pagination: {
- *         count: items.length,
- *         next_page: null,
- *         next_page_token: null,
- *       },
- *     };
- *   }
- */
+export const MOCK_NOTE_CONTENT = "# My Note\n\nSome content here.";
+export const MOCK_FILE_LIST = "notes/foo.md\nnotes/bar.md\nnotes/baz.md";
+export const MOCK_SEARCH_JSON = JSON.stringify([
+  { file: "notes/foo.md", matches: 2 },
+  { file: "notes/bar.md", matches: 1 },
+]);
+export const MOCK_TAGS_JSON = JSON.stringify([
+  { tag: "project", count: 5 },
+  { tag: "idea", count: 3 },
+]);
+export const MOCK_VAULT_INFO =
+  "Name: My Vault\nPath: /Users/me/Documents/Obsidian/My Vault\nFiles: 142\nFolders: 12";

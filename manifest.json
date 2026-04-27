@@ -1,24 +1,22 @@
 {
   "manifest_version": "0.4",
-  "name": "@nimblebraininc/YOUR_SERVER_NAME",
-  "display_name": "YOUR_DISPLAY_NAME",
+  "name": "@ovaculos/obsidian-cli",
+  "display_name": "obsidian-cli",
   "version": "0.1.0",
-  "description": "TODO: one-line description of what this MCP server does",
-  "long_description": "TODO: multi-paragraph description for the marketplace listing.\n\n## Features\n\n- TODO: list key capabilities\n\n## Requirements\n\nTODO: describe how to obtain an API key.",
+  "description": "MCP server for Obsidian — read, write, search, and manage notes via the Obsidian CLI",
+  "long_description": "Wraps the Obsidian CLI binary to expose vault operations as MCP tools. Requires Obsidian to be running on the same machine.\n\n## Features\n\n- Read, create, append, prepend, delete, move, and list notes\n- Full-text search with optional line context\n- Frontmatter property read/write/remove\n- Structural analysis: outlines, tags, backlinks, links, orphans, dead ends, unresolved links\n- Vault and folder info\n\n## Requirements\n\nObsidian must be installed and running. The default binary path on macOS is `/Applications/Obsidian.app/Contents/MacOS/obsidian`. Override with the `OBSIDIAN_BIN` environment variable if your install is non-standard.",
   "author": {
-    "name": "NimbleBrain Inc",
-    "email": "hello@nimblebrain.ai"
+    "name": "Ovaculos"
   },
   "license": "MIT",
-  "keywords": ["TODO", "add", "relevant", "keywords"],
+  "keywords": ["obsidian", "notes", "knowledge-base", "markdown", "pkm", "vault"],
   "repository": {
     "type": "git",
-    "url": "https://github.com/NimbleBrainInc/YOUR_REPO_NAME"
+    "url": "https://github.com/Ovaculos/mcp-obsidian-cli"
   },
-  "homepage": "https://nimblebrain.ai",
-  "documentation": "https://github.com/NimbleBrainInc/YOUR_REPO_NAME#readme",
-  "support": "https://github.com/NimbleBrainInc/YOUR_REPO_NAME/issues",
-  "privacy_policies": ["TODO: link to the third-party service's privacy policy"],
+  "homepage": "https://github.com/Ovaculos/mcp-obsidian-cli",
+  "documentation": "https://github.com/Ovaculos/mcp-obsidian-cli#readme",
+  "support": "https://github.com/Ovaculos/mcp-obsidian-cli/issues",
   "compatibility": {
     "platforms": ["darwin", "linux", "win32"],
     "runtimes": {
@@ -26,12 +24,19 @@
     }
   },
   "user_config": {
-    "api_key": {
+    "obsidian_bin": {
       "type": "string",
-      "title": "YOUR_SERVICE API Key",
-      "description": "TODO: describe where the user can get this key",
-      "sensitive": true,
-      "required": true
+      "title": "Obsidian Binary Path",
+      "description": "Path to the Obsidian binary. Defaults to /Applications/Obsidian.app/Contents/MacOS/obsidian on macOS.",
+      "sensitive": false,
+      "required": false
+    },
+    "obsidian_vault": {
+      "type": "string",
+      "title": "Default Vault Name",
+      "description": "Default vault to target. If omitted, uses the active vault in the running Obsidian app.",
+      "sensitive": false,
+      "required": false
     }
   },
   "server": {
@@ -41,20 +46,42 @@
       "command": "node",
       "args": ["${__dirname}/build/index.js", "--stdio"],
       "env": {
-        "YOUR_API_KEY_ENV_VAR": "${user_config.api_key}"
+        "OBSIDIAN_BIN": "${user_config.obsidian_bin}",
+        "OBSIDIAN_VAULT": "${user_config.obsidian_vault}"
       }
     }
   },
   "tools": [
-    { "name": "TODO_tool_name", "description": "TODO: describe what this tool does" }
+    { "name": "read_note", "description": "Read the contents of a note" },
+    { "name": "create_note", "description": "Create a new note" },
+    { "name": "append_note", "description": "Append content to a note" },
+    { "name": "prepend_note", "description": "Prepend content to a note" },
+    { "name": "delete_note", "description": "Delete a note" },
+    { "name": "move_note", "description": "Move or rename a note" },
+    { "name": "list_notes", "description": "List files in the vault" },
+    { "name": "search_vault", "description": "Search the vault for text" },
+    { "name": "search_context", "description": "Search the vault for text with line context" },
+    { "name": "list_properties", "description": "List frontmatter properties" },
+    { "name": "get_property", "description": "Read a frontmatter property value" },
+    { "name": "set_property", "description": "Set a frontmatter property" },
+    { "name": "remove_property", "description": "Remove a frontmatter property" },
+    { "name": "get_outline", "description": "Get the heading outline of a note" },
+    { "name": "list_tags", "description": "List tags in the vault or a file" },
+    { "name": "get_backlinks", "description": "List files that link to a given file" },
+    { "name": "get_links", "description": "List outgoing links from a file" },
+    { "name": "list_unresolved", "description": "List unresolved wikilinks in the vault" },
+    { "name": "list_orphans", "description": "List files with no incoming links" },
+    { "name": "list_deadends", "description": "List files with no outgoing links" },
+    { "name": "vault_info", "description": "Show vault information" },
+    { "name": "list_folders", "description": "List folders in the vault" }
   ],
   "_meta": {
     "org.mpaktrust": {
       "mtf_version": "0.1",
       "permissions": {
-        "network": "outbound",
+        "network": "none",
         "filesystem": "none",
-        "subprocess": "none",
+        "subprocess": "allow",
         "environment": "read",
         "native": "none"
       }

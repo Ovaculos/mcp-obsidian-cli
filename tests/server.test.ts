@@ -1,64 +1,31 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { afterAll, beforeAll, describe, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { createServer } from "../src/app.js";
+import {
+  MOCK_FILE_LIST,
+  MOCK_NOTE_CONTENT,
+  MOCK_SEARCH_JSON,
+  MOCK_TAGS_JSON,
+  MOCK_VAULT_INFO,
+} from "./fixtures.js";
 
-/**
- * Integration tests for the MCP server.
- *
- * TODO:
- * 1. Import your real client type, schemas, and handlers
- * 2. Add a vi.fn() mock for each client method
- * 3. Register all tools in createTestServer()
- * 4. Write a test case for each tool
- *
- * The pattern: spin up a real McpServer + Client pair over InMemoryTransport,
- * control the client with vi.fn() mocks, and assert on the text content
- * returned by each tool.
- */
+const { mockRunObsidian } = vi.hoisted(() => ({
+  mockRunObsidian: vi.fn<[string[]], Promise<string>>(),
+}));
 
-// TODO: import your client type
-// import type { ApiClient } from "../src/utils/apiClient.js";
+vi.mock("../src/utils/cliClient.js", async (importOriginal) => {
+  const actual =
+    (await importOriginal()) as typeof import("../src/utils/cliClient.js");
+  return { ...actual, runObsidian: mockRunObsidian };
+});
 
-// TODO: import your schemas
-// import { ExampleSchema } from "../src/utils/schemas.js";
-
-// TODO: import your handlers
-// import { exampleHandler } from "../src/handlers/exampleHandler.js";
-
-// TODO: import fixtures
-// import { mockMyResource } from "./fixtures.js";
-
-// Mock client — one vi.fn() per client method
-const mocks = {
-  // TODO: add one entry per method on your ApiClient
-  // exampleMethod: vi.fn(),
-};
-
-// TODO: cast to your real client type
-// const mockClient = mocks as unknown as ApiClient;
-
-function createTestServer(): McpServer {
-  const server = new McpServer({ name: "test-server", version: "0.0.0" });
-
-  // TODO: register tools here, same pattern as src/app.ts but using mockClient.
-  // server.registerTool(
-  //   "tool_name",
-  //   { description: "...", inputSchema: ExampleSchema.shape },
-  //   (args): Promise<CallToolResult> => exampleHandler(mockClient, args),
-  // );
-
-  return server;
-}
-
-describe("YOUR_SERVER_NAME MCP server", () => {
+describe("obsidian-cli MCP server", () => {
   let client: Client;
-  let server: McpServer;
 
   beforeAll(async () => {
-    server = createTestServer();
+    const server = createServer();
     client = new Client({ name: "test-client", version: "0.0.0" });
-
     const [clientTransport, serverTransport] =
       InMemoryTransport.createLinkedPair();
     await Promise.all([
@@ -69,36 +36,104 @@ describe("YOUR_SERVER_NAME MCP server", () => {
 
   afterAll(async () => {
     await client.close();
-    await server.close();
   });
 
   function getText(result: Awaited<ReturnType<typeof client.callTool>>) {
     return (result.content as Array<{ type: string; text: string }>)[0].text;
   }
 
-  // ----- Tool registration -----
-
-  // TODO: once you've registered tools in createTestServer(), replace it.todo
-  // with a real assertion:
-  //   const { tools } = await client.listTools();
-  //   expect(tools).toHaveLength(N);
-  //   expect(tools.map(t => t.name).sort()).toEqual([...]);
-  it.todo("lists all registered tools with correct names", () => {
-    void getText; // remove once getText is used in real tests
-    void mocks;
+  it("registers all 22 tools", async () => {
+    const { tools } = await client.listTools();
+    expect(tools).toHaveLength(22);
+    const names = tools.map((t) => t.name).sort();
+    expect(names).toEqual([
+      "append_note",
+      "create_note",
+      "delete_note",
+      "get_backlinks",
+      "get_links",
+      "get_outline",
+      "get_property",
+      "list_deadends",
+      "list_folders",
+      "list_notes",
+      "list_orphans",
+      "list_properties",
+      "list_tags",
+      "list_unresolved",
+      "move_note",
+      "prepend_note",
+      "read_note",
+      "remove_property",
+      "search_context",
+      "search_vault",
+      "set_property",
+      "vault_info",
+    ]);
   });
 
-  // TODO: add a describe block per tool. Example:
-  //
-  // it("example_tool returns formatted result", async () => {
-  //   mocks.exampleMethod.mockResolvedValueOnce(mockMyResource);
-  //   const result = await client.callTool({ name: "example_tool", arguments: { id: "123" } });
-  //   const parsed = JSON.parse(getText(result));
-  //   expect(parsed.id).toBe("RESOURCE_123");
-  // });
-  //
-  // it("example_tool returns error for missing id", async () => {
-  //   const result = await client.callTool({ name: "example_tool", arguments: {} });
-  //   expect(result.isError).toBe(true);
-  // });
+  it("read_note returns CLI output", async () => {
+    mockRunObsidian.mockResolvedValueOnce(MOCK_NOTE_CONTENT);
+    const result = await client.callTool({
+      name: "read_note",
+      arguments: { file: "My Note" },
+    });
+    expect(getText(result)).toBe(MOCK_NOTE_CONTENT);
+    expect(mockRunObsidian).toHaveBeenCalledWith(
+      expect.arrayContaining(["read", "file=My Note"]),
+    );
+  });
+
+  it("read_note returns error on CLI failure", async () => {
+    const { CliError } = await import("../src/utils/cliClient.js");
+    mockRunObsidian.mockRejectedValueOnce(new CliError(1, "File not found"));
+    const result = await client.callTool({ name: "read_note", arguments: {} });
+    expect(result.isError).toBe(true);
+    expect(getText(result)).toContain("CLI error 1");
+  });
+
+  it("list_notes returns file list", async () => {
+    mockRunObsidian.mockResolvedValueOnce(MOCK_FILE_LIST);
+    const result = await client.callTool({ name: "list_notes", arguments: {} });
+    expect(getText(result)).toBe(MOCK_FILE_LIST);
+  });
+
+  it("search_vault requests json format", async () => {
+    mockRunObsidian.mockResolvedValueOnce(MOCK_SEARCH_JSON);
+    const result = await client.callTool({
+      name: "search_vault",
+      arguments: { query: "project" },
+    });
+    expect(getText(result)).toBe(MOCK_SEARCH_JSON);
+    expect(mockRunObsidian).toHaveBeenCalledWith(
+      expect.arrayContaining(["search", "query=project", "format=json"]),
+    );
+  });
+
+  it("list_tags requests json format", async () => {
+    mockRunObsidian.mockResolvedValueOnce(MOCK_TAGS_JSON);
+    const result = await client.callTool({ name: "list_tags", arguments: {} });
+    expect(getText(result)).toBe(MOCK_TAGS_JSON);
+    expect(mockRunObsidian).toHaveBeenCalledWith(
+      expect.arrayContaining(["format=json"]),
+    );
+  });
+
+  it("vault_info returns vault details", async () => {
+    mockRunObsidian.mockResolvedValueOnce(MOCK_VAULT_INFO);
+    const result = await client.callTool({ name: "vault_info", arguments: {} });
+    expect(getText(result)).toBe(MOCK_VAULT_INFO);
+  });
+
+  it("delete_note has destructiveHint annotation", async () => {
+    const { tools } = await client.listTools();
+    const deleteTool = tools.find((t) => t.name === "delete_note");
+    expect(deleteTool?.annotations?.destructiveHint).toBe(true);
+  });
+
+  it("read_note has readOnlyHint annotation", async () => {
+    const { tools } = await client.listTools();
+    const readTool = tools.find((t) => t.name === "read_note");
+    expect(readTool?.annotations?.readOnlyHint).toBe(true);
+  });
 });

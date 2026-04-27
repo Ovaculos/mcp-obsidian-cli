@@ -1,29 +1,38 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.nimblebrain/YOUR_SERVER_NAME",
-  "title": "YOUR_DISPLAY_NAME",
-  "description": "TODO: one-line description of what this MCP server does",
+  "name": "io.ovaculos/obsidian-cli",
+  "title": "obsidian-cli",
+  "description": "MCP server for Obsidian — read, write, search, and manage notes via the Obsidian CLI",
   "version": "0.1.0",
-  "websiteUrl": "https://nimblebrain.ai",
+  "websiteUrl": "https://github.com/Ovaculos/mcp-obsidian-cli",
   "repository": {
-    "url": "https://github.com/NimbleBrainInc/YOUR_REPO_NAME",
+    "url": "https://github.com/Ovaculos/mcp-obsidian-cli",
     "source": "github"
   },
   "packages": [
     {
-      "registryType": "npm",
+      "registryType": [
+        "mcpb",
+        "npm"
+      ],
       "registryBaseUrl": "https://registry.npmjs.org",
-      "identifier": "@nimblebraininc/YOUR_SERVER_NAME",
+      "identifier": "@ovaculos/obsidian-cli",
       "version": "0.1.0",
       "transport": {
         "type": "stdio"
       },
       "environmentVariables": [
         {
-          "name": "YOUR_API_KEY_ENV_VAR",
-          "description": "TODO: describe where the user can get this key",
-          "isRequired": true,
-          "isSecret": true
+          "name": "OBSIDIAN_BIN",
+          "description": "Path to the Obsidian binary (default: /Applications/Obsidian.app/Contents/MacOS/obsidian on macOS)",
+          "isRequired": false,
+          "isSecret": false
+        },
+        {
+          "name": "OBSIDIAN_VAULT",
+          "description": "Default vault name. If omitted, targets the active vault.",
+          "isRequired": false,
+          "isSecret": false
         }
       ]
     }
@@ -36,9 +45,9 @@
     "org.mpaktrust": {
       "mtf_version": "0.1",
       "permissions": {
-        "network": ["YOUR_API_HOST"],
+        "network": [],
         "filesystem": "none",
-        "subprocess": "none"
+        "subprocess": "allow"
       }
     }
   }

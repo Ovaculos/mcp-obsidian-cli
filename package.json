@@ -1,5 +1,5 @@
 {
-  "name": "@nimblebraininc/YOUR_SERVER_NAME",
+  "name": "@ovaculos/obsidian-cli",
   "version": "0.1.0",
   "description": "TODO: describe what this MCP server does",
   "type": "module",
@@ -15,8 +15,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "docker:build": "docker build -t YOUR_SERVER_NAME .",
-    "docker:run": "docker run --rm -p 3000:3000 --env-file .env YOUR_SERVER_NAME",
+    "docker:build": "docker build -t obsidian-cli .",
+    "docker:run": "docker run --rm -p 3000:3000 --env-file .env obsidian-cli",
     "inspect:http": "npx @modelcontextprotocol/inspector http://localhost:3000/mcp",
     "check": "npm run format:check && npm run typecheck && npm run test"
   },

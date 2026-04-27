@@ -1,5 +1,5 @@
 # MCPB bundle configuration
-BUNDLE_NAME = YOUR_SERVER_NAME
+BUNDLE_NAME = obsidian-cli
 
 # Single source of truth: manifest.json
 VERSION := $(shell jq -r '.version' manifest.json)
@@ -17,6 +17,7 @@ install: ## Install dependencies
 
 build: ## Build TypeScript
 	npm run build
+	cp src/SKILL.md build/SKILL.md
 
 format: ## Format code with biome
 	npm run format

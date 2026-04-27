@@ -3,4 +3,4 @@
 // To update the version: make bump VERSION=x.x.x
 // To set the server name: update manifest.json then run make sync
 export const VERSION = "0.1.0";
-export const SERVER_NAME = "YOUR_SERVER_NAME";
+export const SERVER_NAME = "obsidian-cli";
