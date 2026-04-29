@@ -4,7 +4,10 @@ import { fileURLToPath } from "node:url";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const SKILL_CONTENT = readFileSync(join(__dirname, "SKILL.md"), "utf-8");
+const SKILL_CONTENT = readFileSync(
+  join(__dirname, "..", "skills", "example-skill", "SKILL.md"),
+  "utf-8",
+);
 
 import { SERVER_NAME, VERSION } from "./constants.js";
 import {

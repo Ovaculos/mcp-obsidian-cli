@@ -3,7 +3,7 @@
   "name": "io.ovaculos/obsidian-cli",
   "title": "obsidian-cli",
   "description": "MCP server for Obsidian — read, write, search, and manage notes via the Obsidian CLI",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "websiteUrl": "https://github.com/Ovaculos/mcp-obsidian-cli",
   "repository": {
     "url": "https://github.com/Ovaculos/mcp-obsidian-cli",
@@ -17,7 +17,7 @@
       ],
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "@ovaculos/obsidian-cli",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "transport": {
         "type": "stdio"
       },
