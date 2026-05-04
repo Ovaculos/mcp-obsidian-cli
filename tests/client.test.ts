@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildArgs, CliError } from "../src/utils/cliClient.js";
+import { buildArgs, CliError, cleanEnv } from "../src/utils/cliClient.js";
 
 describe("CliError", () => {
   it("creates error with code and message", () => {
@@ -46,5 +46,35 @@ describe("buildArgs", () => {
   it("includes numeric values as strings", () => {
     const args = buildArgs("search", { limit: 10 });
     expect(args).toContain("limit=10");
+  });
+});
+
+describe("cleanEnv", () => {
+  it("returns undefined for unset value", () => {
+    expect(cleanEnv(undefined)).toBeUndefined();
+  });
+
+  it("returns undefined for empty string", () => {
+    expect(cleanEnv("")).toBeUndefined();
+  });
+
+  it("returns undefined for unsubstituted user_config placeholder", () => {
+    expect(cleanEnv("${user_config.obsidian_bin}")).toBeUndefined();
+    expect(cleanEnv("${user_config.obsidian_vault}")).toBeUndefined();
+  });
+
+  it("returns undefined for any unsubstituted ${...} template", () => {
+    expect(cleanEnv("${HOME}")).toBeUndefined();
+  });
+
+  it("passes through real paths", () => {
+    expect(cleanEnv("/Applications/Obsidian.app/Contents/MacOS/obsidian")).toBe(
+      "/Applications/Obsidian.app/Contents/MacOS/obsidian",
+    );
+    expect(cleanEnv("MyVault")).toBe("MyVault");
+  });
+
+  it("does not strip values that merely contain ${ inside", () => {
+    expect(cleanEnv("/some/path/$weird/file")).toBe("/some/path/$weird/file");
   });
 });

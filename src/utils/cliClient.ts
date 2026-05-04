@@ -8,7 +8,15 @@ const DEFAULT_BIN =
     ? "/Applications/Obsidian.app/Contents/MacOS/obsidian"
     : "obsidian";
 
-export const OBSIDIAN_BIN = process.env.OBSIDIAN_BIN || DEFAULT_BIN;
+// Some MCP runners pass unsubstituted `${user_config.X}` placeholders when the
+// user did not set an optional config value. Treat those as unset.
+export function cleanEnv(value: string | undefined): string | undefined {
+  if (!value) return undefined;
+  if (/^\$\{[^}]+\}$/.test(value)) return undefined;
+  return value;
+}
+
+export const OBSIDIAN_BIN = cleanEnv(process.env.OBSIDIAN_BIN) ?? DEFAULT_BIN;
 
 export class CliError extends Error {
   constructor(
@@ -42,7 +50,7 @@ export function buildArgs(
   opts: Record<string, string | number | boolean | undefined>,
   vaultOverride?: string,
 ): string[] {
-  const vault = vaultOverride || process.env.OBSIDIAN_VAULT;
+  const vault = vaultOverride || cleanEnv(process.env.OBSIDIAN_VAULT);
   const args = [command];
   if (vault) args.push(`vault=${vault}`);
   for (const [key, value] of Object.entries(opts)) {

@@ -1,3 +1,5 @@
+import { cleanEnv } from "./cliClient.js";
+
 export interface Config {
   vault?: string;
   obsidianBin?: string;
@@ -5,7 +7,7 @@ export interface Config {
 
 export function loadConfig(): Config {
   return {
-    vault: process.env.OBSIDIAN_VAULT || undefined,
-    obsidianBin: process.env.OBSIDIAN_BIN || undefined,
+    vault: cleanEnv(process.env.OBSIDIAN_VAULT),
+    obsidianBin: cleanEnv(process.env.OBSIDIAN_BIN),
   };
 }
