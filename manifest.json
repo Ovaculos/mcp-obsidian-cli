@@ -2,7 +2,7 @@
   "manifest_version": "0.4",
   "name": "@ovaculos/obsidian-cli",
   "display_name": "obsidian-cli",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "MCP server for Obsidian — read, write, search, and manage notes via the Obsidian CLI",
   "long_description": "Wraps the Obsidian CLI binary to expose vault operations as MCP tools. Requires Obsidian to be running on the same machine.\n\n## Features\n\n- Read, create, append, prepend, delete, move, and list notes\n- Full-text search with optional line context\n- Frontmatter property read/write/remove\n- Structural analysis: outlines, tags, backlinks, links, orphans, dead ends, unresolved links\n- Vault and folder info\n\n## Requirements\n\nObsidian must be installed and running. The default binary path on macOS is `/Applications/Obsidian.app/Contents/MacOS/obsidian`. Override with the `OBSIDIAN_BIN` environment variable if your install is non-standard.",
   "author": {

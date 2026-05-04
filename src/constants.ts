@@ -2,5 +2,5 @@
 // VERSION and SERVER_NAME are managed by the Makefile.
 // To update the version: make bump VERSION=x.x.x
 // To set the server name: update manifest.json then run make sync
-export const VERSION = "0.1.3";
+export const VERSION = "0.1.4";
 export const SERVER_NAME = "obsidian-cli";
