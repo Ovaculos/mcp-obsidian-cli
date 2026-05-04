@@ -44,3 +44,4 @@ npm run inspect:http    # connect MCP Inspector
 ```
 
 The container exposes `POST/GET/DELETE /mcp` (Streamable HTTP) and `GET /health`.
+
